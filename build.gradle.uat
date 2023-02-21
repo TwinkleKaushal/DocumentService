@@ -1,0 +1,96 @@
+buildscript {
+    ext {
+      springBootVersion = '2.7.6'
+   }
+   repositories {
+      mavenCentral()
+   }
+   dependencies {
+         classpath("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+      classpath('se.transmode.gradle:gradle-docker:1.2')
+   }
+}
+plugins {
+	id 'java'
+	id 'org.springframework.boot' version '2.7.6'
+	id 'io.spring.dependency-management' version '1.1.0'
+}
+
+group = 'com.connection.document'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '11'
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+apply plugin: 'docker'
+
+task buildDocker(type: Docker, dependsOn: build) {
+   applicationName = jar.baseName
+   dockerfile = file('Dockerfile')
+   doFirst {
+      copy {
+         from jar
+         into stageDir
+      }
+   }
+}
+
+jar{
+    archiveClassifier=''
+    enabled = false
+    manifest {
+        attributes(
+                'Main-Class': 'com.connection.document.DocumentServiceApplication'
+        )
+    }
+}
+repositories {
+	mavenCentral()
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	implementation 'org.springframework.boot:spring-boot-starter-web-services'
+	compileOnly 'org.projectlombok:lombok'
+	developmentOnly 'org.springframework.boot:spring-boot-devtools'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	implementation 'org.postgresql:postgresql:42.5.1'
+    implementation group: 'com.github.librepdf', name: 'openpdf', version: '1.3.8'
+    implementation group: 'org.bouncycastle', name: 'bcprov-jdk14', version: '1.61'
+    
+    implementation 'org.apache.poi:poi-scratchpad:3.0.1-FINAL'
+    implementation 'org.apache.poi:poi-ooxml:4.1.1'
+   // implementation 'org.apache.poi:ooxml-schemas:1.1'
+	implementation 'org.apache.poi:poi:4.1.1'
+	implementation 'fr.opensagres.xdocreport:org.apache.poi.xwpf.converter.pdf:1.0.0'
+	implementation 'fr.opensagres.xdocreport:fr.opensagres.poi.xwpf.converter.pdf:2.0.2'
+	
+    implementation 'io.springfox:springfox-swagger2:2.9.2'
+    implementation 'io.springfox:springfox-swagger-ui:2.9.2'
+    implementation 'com.itextpdf:itextpdf:5.5.8'
+    
+    implementation 'com.itextpdf.tool:xmlworker:5.5.8'
+    implementation 'net.sf.cssbox:pdf2dom:2.0.1'
+    implementation 'org.springframework.boot:spring-boot-starter-actuator:2.7.2'
+    implementation 'com.google.code.gson:gson:2.10.1'
+    
+    // https://mvnrepository.com/artifact/org.spire-math/spire
+    implementation 'org.spire-math:spire_2.11:0.13.0'
+    
+    // https://mvnrepository.com/artifact/org.springframework.boot/spring-boot-starter-mail
+	implementation 'org.springframework.boot:spring-boot-starter-mail:2.7.4'
+	
+	// https://mvnrepository.com/artifact/junit/junit
+	testImplementation 'junit:junit:4.11'
+
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
